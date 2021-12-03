@@ -12,21 +12,22 @@ from rest_framework.parsers import JSONParser
 
 @api_view(["GET"])
 def taskGet(request):
-    task = Task.objects.all()
-    task_json = serializers.serialize("json", task)
-    return HttpResponse(task_json, content_type="application/json")
+    data = TaskSerializer(Task.objects.all(), many=True)
+    return JsonResponse(data.data, safe=False)
 
 
 @api_view(["POST"])
 def taskPost(request):
+    data = JSONParser().parse(request)
+    serializer = TaskSerializer(data=data)
 
-    print(request)
-    infoJson = JSONParser().parse(request)
-    print(infoJson)
-    serializer_class = TaskSerializer(data=infoJson)
-    if serializer_class.is_valid():
-        serializer_class.save()
-        return JsonResponse(serializer_class.data, status=201)
-    else:
+    if serializer.is_valid():
+        serializer.save()
+        return JsonResponse(serializer.data, status=200)
+    return JsonResponse(serializer.errors, status=400)
 
-        return JsonResponse(serializer_class.errors, status=400)
+
+@api_view(["DELETE"])
+def taskDelete(request):
+    Task.objects.all().delete()
+    return HttpResponse("Tasks deletadas")
