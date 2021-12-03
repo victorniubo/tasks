@@ -8,18 +8,18 @@ from rest_framework.response import Response
 from tasks.serializers import TaskSerializer
 from rest_framework.decorators import api_view
 from rest_framework.parsers import JSONParser
-# Create your views here.
 
 
 @api_view(["GET"])
-def getTasks(request):
+def taskGet(request):
     task = Task.objects.all()
     task_json = serializers.serialize("json", task)
     return HttpResponse(task_json, content_type="application/json")
 
 
 @api_view(["POST"])
-def createTask(request):
+def taskPost(request):
+
     print(request)
     infoJson = JSONParser().parse(request)
     print(infoJson)
@@ -27,4 +27,6 @@ def createTask(request):
     if serializer_class.is_valid():
         serializer_class.save()
         return JsonResponse(serializer_class.data, status=201)
-    return JsonResponse(serializer_class.errors, status=400)
+    else:
+
+        return JsonResponse(serializer_class.errors, status=400)
